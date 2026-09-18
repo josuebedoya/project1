@@ -15,6 +15,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -53,6 +54,11 @@ public class VehiculoDocumento implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "Estado", nullable = false, length = 20)
     private EstadoDocumento estado;
+
+    // Documento PDF asociado, registrado en BASE64 y almacenado en un campo BLOB.
+    @Lob
+    @Column(name = "ArchivoPdf", columnDefinition = "LONGBLOB")
+    private byte[] archivoPdf;
 
     public VehiculoDocumento() {
     }
@@ -103,6 +109,14 @@ public class VehiculoDocumento implements Serializable {
 
     public void setEstado(EstadoDocumento estado) {
         this.estado = estado;
+    }
+
+    public byte[] getArchivoPdf() {
+        return archivoPdf;
+    }
+
+    public void setArchivoPdf(byte[] archivoPdf) {
+        this.archivoPdf = archivoPdf;
     }
 
     @Override

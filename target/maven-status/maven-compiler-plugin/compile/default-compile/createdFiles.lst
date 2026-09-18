@@ -12,9 +12,14 @@ com\proyecto1\Repository\DocumentoRepository.class
 com\proyecto1\DTO\VehiculoRequest.class
 com\proyecto1\Exception\GlobalExceptionHandler.class
 com\proyecto1\DTO\VehiculoDetalleResponse.class
+com\proyecto1\Entities\EstadoConductor.class
+com\proyecto1\Repository\UsuarioRepository.class
+com\proyecto1\Entities\UsuarioId.class
 com\proyecto1\Exception\ResourceNotFoundException.class
 com\proyecto1\Entities\VehiculoDocumento.class
+com\proyecto1\Entities\Persona.class
 com\proyecto1\Entities\TipoVehiculo.class
+com\proyecto1\Repository\VehiculoConductorRepository.class
 com\proyecto1\Services\Interfaces\IVehiculoService.class
 com\proyecto1\Repository\VehiculoRepository.class
 com\proyecto1\Proyecto1Application.class
@@ -22,4 +27,9 @@ com\proyecto1\Entities\TipoCombustible.class
 com\proyecto1\Exception\BusinessException.class
 com\proyecto1\Controller\DocumentoController.class
 com\proyecto1\Entities\Vehiculo.class
+com\proyecto1\Entities\VehiculoConductor.class
+com\proyecto1\Entities\Usuario.class
+com\proyecto1\Repository\PersonaRepository.class
 com\proyecto1\Entities\EstadoDocumento.class
+com\proyecto1\Entities\TipoIdentificacion.class
+com\proyecto1\Entities\TipoPersona.class

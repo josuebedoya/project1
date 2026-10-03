@@ -20,7 +20,7 @@ import jakarta.validation.constraints.Size;
 // Entidad parametrica/de configuracion: documentos que pueden asociarse a los vehiculos.
 @Entity
 @Table(name = "Documento", schema = "PPOOII", uniqueConstraints = @UniqueConstraint(name = "UQ_DOCUMENTO_CODIGO", columnNames = "Codigo"))
-@Check(constraints = "TipoVehiculoAplica IN ('A','M','AM') AND Obligatoriedad IN ('RA','RM','RR')")
+@Check(constraints = "tipo_vehiculo_aplica IN ('A','M','AM') AND obligatoriedad IN ('RA','RM','RR')")
 public class Documento implements Serializable {
 
     @Id

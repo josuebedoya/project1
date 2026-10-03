@@ -21,7 +21,7 @@ import jakarta.validation.constraints.Size;
 // Datos basicos de una persona que representa un conductor o un administrador del sistema.
 @Entity
 @Table(name = "Persona", schema = "PPOOII", uniqueConstraints = @UniqueConstraint(name = "UQ_PERSONA_IDENTIFICACION", columnNames = "Identificacion"))
-@Check(constraints = "TipoIdentificacion IN ('CC') AND TipoPersona IN ('C','A')")
+@Check(constraints = "tipo_identificacion IN ('CC') AND tipo_persona IN ('C','A')")
 public class Persona implements Serializable {
 
     @Id

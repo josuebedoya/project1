@@ -147,6 +147,8 @@ public class VehiculoServiceImpl implements IVehiculoService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "No existe un documento con id " + docReq.getDocumentoId()));
 
+        validarCompatibilidad(vehiculo, documento);
+
         VehiculoDocumento vehiculoDocumento = new VehiculoDocumento();
         vehiculoDocumento.setVehiculo(vehiculo);
         vehiculoDocumento.setDocumento(documento);
@@ -201,6 +203,23 @@ public class VehiculoServiceImpl implements IVehiculoService {
         if (vehiculo.getTipoVehiculo() == TipoVehiculo.MOTOCICLETA && !placa.matches(REGEX_PLACA_MOTOCICLETA)) {
             throw new BusinessException(
                     "La placa de una motocicleta debe tener 3 letras, 2 números y terminar en letra, ejemplo ABC12D");
+        }
+    }
+
+    // Un documento solo puede asociarse a un vehiculo del tipo al que aplica:
+    // A = solo automovil, M = solo motocicleta, AM = ambos.
+    private void validarCompatibilidad(Vehiculo vehiculo, Documento documento) {
+        String aplica = String.valueOf(documento.getTipoVehiculoAplica());
+        boolean compatible = "AM".equals(aplica)
+                || ("A".equals(aplica) && vehiculo.getTipoVehiculo() == TipoVehiculo.AUTOMOVIL)
+                || ("M".equals(aplica) && vehiculo.getTipoVehiculo() == TipoVehiculo.MOTOCICLETA);
+
+        if (!compatible) {
+            logger.error("ERROR ASOCIAR_DOCUMENTO: EL DOCUMENTO {} NO APLICA PARA {}!",
+                    documento.getNombre(), vehiculo.getTipoVehiculo());
+            throw new BusinessException("El documento " + documento.getNombre()
+                    + " solo aplica para vehículos tipo " + aplica
+                    + " y no se puede asociar a un " + vehiculo.getTipoVehiculo());
         }
     }
 }

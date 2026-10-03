@@ -21,9 +21,9 @@ import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "Vehiculo", schema = "PPOOII", uniqueConstraints = @UniqueConstraint(name = "UQ_VEHICULO_PLACA", columnNames = "Placa"))
-@Check(constraints = "TipoVehiculo IN ('AUTOMOVIL','MOTOCICLETA') "
-        + "AND TipoServicio IN ('Pu','Pr') "
-        + "AND TipoCombustible IN ('GASOLINA','GAS','DISEL')")
+@Check(constraints = "tipo_vehiculo IN ('AUTOMOVIL','MOTOCICLETA') "
+        + "AND tipo_servicio IN ('Pu','Pr') "
+        + "AND tipo_combustible IN ('GASOLINA','GAS','DIESEL')")
 public class Vehiculo implements Serializable {
 
     @Id

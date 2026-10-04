@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proyecto1.DTO.PersonaCreadaResponse;
+import com.proyecto1.DTO.PersonaPorTipoResponse;
 import com.proyecto1.Entities.Persona;
 import com.proyecto1.Entities.TipoPersona;
 import com.proyecto1.Entities.Usuario;
@@ -53,6 +54,7 @@ public class PersonaServiceImpl implements IPersonaService {
             throw new BusinessException("Los datos de la persona son obligatorios");
         }
         persona.setId(null);
+        validarLicenciaConductor(persona);
 
         personaRepository.findByIdentificacion(persona.getIdentificacion()).ifPresent(p -> {
             logger.error("ERROR CREAR_PERSONA: LA IDENTIFICACION {} YA EXISTE!", persona.getIdentificacion());
@@ -94,6 +96,7 @@ public class PersonaServiceImpl implements IPersonaService {
         if (existente.getTipoPersona() != persona.getTipoPersona()) {
             throw new BusinessException("No se puede cambiar el tipo de persona");
         }
+        validarLicenciaConductor(persona);
 
         personaRepository.findByIdentificacion(persona.getIdentificacion()).ifPresent(p -> {
             if (!p.getId().equals(persona.getId())) {
@@ -115,6 +118,34 @@ public class PersonaServiceImpl implements IPersonaService {
     @Override
     public List<Persona> consultarPersonas(Pageable pageable) {
         return personaRepository.findAll(pageable).getContent();
+    }
+
+    // Total de personas agrupadas por tipo (servicio publico).
+    @Override
+    public List<PersonaPorTipoResponse> contarPorTipo() {
+        return personaRepository.countByTipoPersona().stream()
+                .map(fila -> new PersonaPorTipoResponse((TipoPersona) fila[0], (Long) fila[1]))
+                .toList();
+    }
+
+    // Regla de negocio: la licencia de conduccion (documento + fecha de vigencia) solo es
+    // obligatoria cuando la persona es de tipo CONDUCTOR; depende de otro campo de la misma
+    // entidad, por lo que no se puede resolver con una unica anotacion Bean Validation.
+    private void validarLicenciaConductor(Persona persona) {
+        if (persona.getTipoPersona() != TipoPersona.C) {
+            return;
+        }
+        if (persona.getLicenciaConduccion() == null || persona.getLicenciaConduccion().length == 0) {
+            logger.error("ERROR LICENCIA_CONDUCCION: EL CONDUCTOR {} NO TIENE LICENCIA REGISTRADA!",
+                    persona.getIdentificacion());
+            throw new BusinessException("La licencia de conducción es obligatoria para personas de tipo conductor");
+        }
+        if (persona.getFechaVigenciaLicencia() == null) {
+            logger.error("ERROR LICENCIA_CONDUCCION: EL CONDUCTOR {} NO TIENE FECHA DE VIGENCIA!",
+                    persona.getIdentificacion());
+            throw new BusinessException(
+                    "La fecha de vigencia de la licencia es obligatoria para personas de tipo conductor");
+        }
     }
 
     // Regla de nemotecnia: primera letra del nombre + primera letra del apellido + identificacion.

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.proyecto1.DTO.PersonaCreadaResponse;
+import com.proyecto1.DTO.PersonaPorTipoResponse;
 import com.proyecto1.Entities.Persona;
 import com.proyecto1.Services.Interfaces.IPersonaService;
 
@@ -52,5 +53,12 @@ public class PersonaController {
     @GetMapping
     public ResponseEntity<List<Persona>> listadoPersonas(Pageable pageable) {
         return ResponseEntity.ok(personaService.consultarPersonas(pageable));
+    }
+
+    // ================ SERVICIO PUBLICO (no requiere token) ================
+    // Total de personas agrupadas por tipo.
+    @GetMapping("/publico/conteo-por-tipo")
+    public ResponseEntity<List<PersonaPorTipoResponse>> getConteoPorTipo() {
+        return ResponseEntity.ok(personaService.contarPorTipo());
     }
 }

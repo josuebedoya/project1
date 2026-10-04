@@ -14,9 +14,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.proyecto1.DTO.DocumentoActualizadoRequest;
 import com.proyecto1.DTO.DocumentoAsociadoRequest;
+import com.proyecto1.DTO.VehiculoCompletoResponse;
 import com.proyecto1.DTO.VehiculoDetalleResponse;
 import com.proyecto1.DTO.VehiculoRequest;
 import com.proyecto1.Entities.EstadoDocumento;
@@ -97,10 +100,36 @@ public class VehiculoController {
         return ResponseEntity.ok(vehiculoService.findByEstadoDocumento(estado));
     }
 
-    // ================ AGREGAR DOCUMENTOS A UN VEHICULO EXISTENTE ================
+    // ================ AGREGAR/ACTUALIZAR DOCUMENTOS DE UN VEHICULO EXISTENTE ================
     @PostMapping("/{id}/documentos")
     public ResponseEntity<List<VehiculoDocumento>> agregarDocumentos(@PathVariable("id") Long id,
             @RequestBody @Valid List<DocumentoAsociadoRequest> documentos) {
         return ResponseEntity.status(HttpStatus.CREATED).body(vehiculoService.agregarDocumentos(id, documentos));
+    }
+
+    @PutMapping("/{id}/documentos")
+    public ResponseEntity<List<VehiculoDocumento>> actualizarDocumentos(@PathVariable("id") Long id,
+            @RequestBody @Valid List<DocumentoActualizadoRequest> documentos) {
+        return ResponseEntity.ok(vehiculoService.actualizarDocumentos(id, documentos));
+    }
+
+    // ================ SERVICIOS PUBLICOS (no requieren token) ================
+    // Vehiculos que tengan documentos vencidos.
+    @GetMapping("/publico/documentos-vencidos")
+    public ResponseEntity<List<Vehiculo>> getVehiculosConDocumentosVencidos() {
+        return ResponseEntity.ok(vehiculoService.findByEstadoDocumento(EstadoDocumento.VENCIDO));
+    }
+
+    // Vehiculos con documentos por vencer dentro de los proximos "dias" (por defecto 30).
+    @GetMapping("/publico/documentos-por-vencer")
+    public ResponseEntity<List<Vehiculo>> getVehiculosConDocumentosPorVencer(
+            @RequestParam(name = "dias", defaultValue = "30") int dias) {
+        return ResponseEntity.ok(vehiculoService.findByDocumentosPorVencer(dias));
+    }
+
+    // Vehiculo por placa, con la informacion de conductores y documentos asociados.
+    @GetMapping("/publico/placa/{placa}")
+    public ResponseEntity<VehiculoCompletoResponse> getCompletoByPlaca(@PathVariable("placa") String placa) {
+        return ResponseEntity.ok(vehiculoService.findCompletoByPlaca(placa));
     }
 }

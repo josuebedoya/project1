@@ -1,6 +1,7 @@
 package com.proyecto1.Entities;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 
 import org.hibernate.annotations.Check;
 
@@ -11,6 +12,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Email;
@@ -56,6 +58,16 @@ public class Persona implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "TipoPersona", nullable = false, length = 1)
     private TipoPersona tipoPersona;
+
+    // Solo aplican cuando TipoPersona = C (Conductor); se valida en el service,
+    // ya que la obligatoriedad depende de otro campo de la misma entidad.
+    // Documento de licencia de conduccion, registrado en BASE64 y almacenado en un campo BLOB.
+    @Lob
+    @Column(name = "LicenciaConduccion", columnDefinition = "LONGBLOB")
+    private byte[] licenciaConduccion;
+
+    @Column(name = "FechaVigenciaLicencia")
+    private LocalDate fechaVigenciaLicencia;
 
     public Persona() {
     }
@@ -116,10 +128,27 @@ public class Persona implements Serializable {
         this.tipoPersona = tipoPersona;
     }
 
+    public byte[] getLicenciaConduccion() {
+        return licenciaConduccion;
+    }
+
+    public void setLicenciaConduccion(byte[] licenciaConduccion) {
+        this.licenciaConduccion = licenciaConduccion;
+    }
+
+    public LocalDate getFechaVigenciaLicencia() {
+        return fechaVigenciaLicencia;
+    }
+
+    public void setFechaVigenciaLicencia(LocalDate fechaVigenciaLicencia) {
+        this.fechaVigenciaLicencia = fechaVigenciaLicencia;
+    }
+
     @Override
     public String toString() {
         return "Persona [id=" + id + ", identificacion=" + identificacion + ", tipoIdentificacion="
                 + tipoIdentificacion + ", nombres=" + nombres + ", apellidos=" + apellidos + ", correoElectronico="
-                + correoElectronico + ", tipoPersona=" + tipoPersona + "]";
+                + correoElectronico + ", tipoPersona=" + tipoPersona + ", fechaVigenciaLicencia="
+                + fechaVigenciaLicencia + "]";
     }
 }

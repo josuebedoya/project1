@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 
 import com.proyecto1.DTO.PersonaCreadaResponse;
+import com.proyecto1.DTO.PersonaPorTipoResponse;
 import com.proyecto1.Entities.Persona;
 
 public interface IPersonaService {
@@ -16,4 +17,7 @@ public interface IPersonaService {
     Persona findById(Long id);
 
     List<Persona> consultarPersonas(Pageable pageable);
+
+    // ============== SERVICIO PUBLICO ==============
+    List<PersonaPorTipoResponse> contarPorTipo();
 }

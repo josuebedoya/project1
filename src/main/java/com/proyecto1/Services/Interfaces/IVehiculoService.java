@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 
+import com.proyecto1.DTO.DocumentoActualizadoRequest;
 import com.proyecto1.DTO.DocumentoAsociadoRequest;
+import com.proyecto1.DTO.VehiculoCompletoResponse;
 import com.proyecto1.DTO.VehiculoRequest;
 import com.proyecto1.Entities.EstadoDocumento;
 import com.proyecto1.Entities.TipoVehiculo;
@@ -29,6 +31,8 @@ public interface IVehiculoService {
 
     List<VehiculoDocumento> agregarDocumentos(Long vehiculoId, List<DocumentoAsociadoRequest> documentos);
 
+    List<VehiculoDocumento> actualizarDocumentos(Long vehiculoId, List<DocumentoActualizadoRequest> documentos);
+
     // ============== BUSQUEDAS ==============
     Vehiculo findByPlaca(String placa);
 
@@ -37,4 +41,9 @@ public interface IVehiculoService {
     List<Vehiculo> findByDocumentoId(Long documentoId);
 
     List<Vehiculo> findByEstadoDocumento(EstadoDocumento estado);
+
+    // ============== SERVICIOS PUBLICOS ==============
+    VehiculoCompletoResponse findCompletoByPlaca(String placa);
+
+    List<Vehiculo> findByDocumentosPorVencer(int dias);
 }

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visualizador de Trayectos</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+    * { box-sizing: border-box; }
+    body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        margin: 0;
+        background: #f4f6f8;
+        color: #1f2937;
+    }
+    header {
+        background: #1d4ed8;
+        color: white;
+        padding: 1.25rem 1.5rem;
+    }
+    header h1 { margin: 0; font-size: 1.4rem; }
+    header p { margin: 0.25rem 0 0; font-size: 0.85rem; opacity: 0.9; }
+    main {
+        max-width: 1000px;
+        margin: 1.5rem auto;
+        padding: 0 1rem;
+    }
+    .panel {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+    .campos {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        align-items: flex-end;
+    }
+    .campo { display: flex; flex-direction: column; gap: 0.25rem; }
+    label { font-size: 0.8rem; font-weight: 600; color: #374151; }
+    input {
+        padding: 0.5rem 0.6rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        min-width: 220px;
+    }
+    button {
+        padding: 0.55rem 1.1rem;
+        background: #1d4ed8;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        cursor: pointer;
+    }
+    button:hover { background: #1e40af; }
+    #mensaje { margin-top: 0.75rem; font-size: 0.85rem; }
+    #mensaje.error { color: #b91c1c; }
+    #mensaje.info { color: #4b5563; }
+    table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+    th, td {
+        text-align: left;
+        padding: 0.5rem 0.6rem;
+        border-bottom: 1px solid #e5e7eb;
+        font-size: 0.85rem;
+    }
+    th { background: #f9fafb; color: #374151; }
+    #mapa { height: 400px; border-radius: 8px; margin-top: 0.5rem; }
+    .oculto { display: none; }
+</style>
+</head>
+<body>
+<header>
+    <h1>Visualizador de Trayectos</h1>
+    <p>Consulta las paradas de una ruta por su código (servicio protegido con API key)</p>
+</header>
+<main>
+    <section class="panel">
+        <div class="campos">
+            <div class="campo">
+                <label for="codigoRuta">Código de ruta</label>
+                <input id="codigoRuta" type="text" placeholder="Ej. RUTA-001" />
+            </div>
+            <div class="campo">
+                <label for="apiKey">API Key (header X-API-KEY)</label>
+                <input id="apiKey" type="text" placeholder="apikey del usuario" />
+            </div>
+            <button id="buscar">Buscar</button>
+        </div>
+        <div id="mensaje"></div>
+    </section>
+
+    <section class="panel oculto" id="resultado">
+        <table>
+            <thead>
+                <tr>
+                    <th>Orden</th>
+                    <th>Ubicación</th>
+                    <th>Latitud</th>
+                    <th>Longitud</th>
+                    <th>Conductor</th>
+                    <th>Vehículo</th>
+                </tr>
+            </thead>
+            <tbody id="tablaParadas"></tbody>
+        </table>
+        <div id="mapa"></div>
+    </section>
+</main>
+
+<script>
+    const btnBuscar = document.getElementById('buscar');
+    const mensaje = document.getElementById('mensaje');
+    const resultado = document.getElementById('resultado');
+    const tablaParadas = document.getElementById('tablaParadas');
+    let mapa = null;
+    let capaRuta = null;
+
+    function mostrarMensaje(texto, tipo) {
+        mensaje.textContent = texto;
+        mensaje.className = tipo || '';
+    }
+
+    function inicializarMapa() {
+        if (mapa) return;
+        mapa = L.map('mapa').setView([4.6, -74.1], 6);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(mapa);
+    }
+
+    function dibujarRuta(paradas) {
+        inicializarMapa();
+        if (capaRuta) {
+            mapa.removeLayer(capaRuta);
+        }
+        const puntos = paradas
+            .filter(p => p.latitud != null && p.longitud != null)
+            .map(p => [p.latitud, p.longitud]);
+
+        const marcadores = puntos.map((punto, i) => L.marker(punto).bindPopup('Parada ' + i));
+        const grupo = L.layerGroup(marcadores);
+        const linea = puntos.length > 1 ? L.polyline(puntos, { color: '#1d4ed8' }) : null;
+
+        capaRuta = L.layerGroup([grupo, ...(linea ? [linea] : [])]).addTo(mapa);
+
+        if (puntos.length > 0) {
+            mapa.fitBounds(puntos.length > 1 ? L.polyline(puntos).getBounds() : L.latLngBounds(puntos, puntos));
+        }
+    }
+
+    async function buscarRuta() {
+        const codigoRuta = document.getElementById('codigoRuta').value.trim();
+        const apiKey = document.getElementById('apiKey').value.trim();
+
+        if (!codigoRuta) {
+            mostrarMensaje('Ingrese un código de ruta.', 'error');
+            return;
+        }
+        if (!apiKey) {
+            mostrarMensaje('Ingrese la API key del usuario.', 'error');
+            return;
+        }
+
+        mostrarMensaje('Buscando...', 'info');
+        resultado.classList.add('oculto');
+
+        try {
+            const respuesta = await fetch('/proyecto1/trayecto/consulta/ruta/' + encodeURIComponent(codigoRuta), {
+                headers: { 'X-API-KEY': apiKey }
+            });
+
+            if (!respuesta.ok) {
+                const cuerpo = await respuesta.json().catch(() => ({}));
+                mostrarMensaje(cuerpo.error || ('Error ' + respuesta.status + ' al consultar la ruta.'), 'error');
+                return;
+            }
+
+            const paradas = await respuesta.json();
+            mostrarMensaje('Ruta "' + codigoRuta + '": ' + paradas.length + ' parada(s).', 'info');
+
+            tablaParadas.innerHTML = paradas.map(p => `
+                <tr>
+                    <td>${p.ordenParada}</td>
+                    <td>${p.ubicacion}</td>
+                    <td>${p.latitud ?? '-'}</td>
+                    <td>${p.longitud ?? '-'}</td>
+                    <td>${p.persona ? (p.persona.nombres + ' ' + p.persona.apellidos) : '-'}</td>
+                    <td>${p.vehiculo ? p.vehiculo.placa : '-'}</td>
+                </tr>
+            `).join('');
+
+            resultado.classList.remove('oculto');
+            dibujarRuta(paradas);
+        } catch (error) {
+            mostrarMensaje('No fue posible conectar con el servidor.', 'error');
+        }
+    }
+
+    btnBuscar.addEventListener('click', buscarRuta);
+</script>
+</body>
+</html>

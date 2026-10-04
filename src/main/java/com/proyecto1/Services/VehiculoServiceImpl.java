@@ -1,5 +1,6 @@
 package com.proyecto1.Services;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,16 +12,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proyecto1.DTO.DocumentoActualizadoRequest;
 import com.proyecto1.DTO.DocumentoAsociadoRequest;
+import com.proyecto1.DTO.VehiculoCompletoResponse;
 import com.proyecto1.DTO.VehiculoRequest;
 import com.proyecto1.Entities.Documento;
 import com.proyecto1.Entities.EstadoDocumento;
 import com.proyecto1.Entities.TipoVehiculo;
 import com.proyecto1.Entities.Vehiculo;
+import com.proyecto1.Entities.VehiculoConductor;
 import com.proyecto1.Entities.VehiculoDocumento;
 import com.proyecto1.Exception.BusinessException;
 import com.proyecto1.Exception.ResourceNotFoundException;
 import com.proyecto1.Repository.DocumentoRepository;
+import com.proyecto1.Repository.VehiculoConductorRepository;
 import com.proyecto1.Repository.VehiculoDocumentoRepository;
 import com.proyecto1.Repository.VehiculoRepository;
 import com.proyecto1.Services.Interfaces.IVehiculoService;
@@ -40,6 +45,10 @@ public class VehiculoServiceImpl implements IVehiculoService {
     @Autowired
     @Qualifier("IVehiculoDocumentoRepo")
     private VehiculoDocumentoRepository vehiculoDocumentoRepository;
+
+    @Autowired
+    @Qualifier("IVehiculoConductorRepo")
+    private VehiculoConductorRepository vehiculoConductorRepository;
 
     // ====================== LOGS ======================
     private static final Logger logger = LogManager.getLogger(VehiculoServiceImpl.class);
@@ -147,6 +156,8 @@ public class VehiculoServiceImpl implements IVehiculoService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "No existe un documento con id " + docReq.getDocumentoId()));
 
+        validarCompatibilidad(vehiculo, documento);
+
         VehiculoDocumento vehiculoDocumento = new VehiculoDocumento();
         vehiculoDocumento.setVehiculo(vehiculo);
         vehiculoDocumento.setDocumento(documento);
@@ -154,8 +165,40 @@ public class VehiculoServiceImpl implements IVehiculoService {
         vehiculoDocumento.setFechaVencimiento(docReq.getFechaVencimiento());
         // Regla de negocio: todo documento asociado nace en estado "En Verificacion".
         vehiculoDocumento.setEstado(EstadoDocumento.EN_VERIFICACION);
+        vehiculoDocumento.setArchivoPdf(docReq.getArchivoPdf());
 
         return vehiculoDocumentoRepository.save(vehiculoDocumento);
+    }
+
+    // UPDATE: actualiza uno o varios documentos ya asociados (fechas, estado y, opcionalmente, el PDF).
+    @Override
+    @Transactional
+    public List<VehiculoDocumento> actualizarDocumentos(Long vehiculoId, List<DocumentoActualizadoRequest> documentos) {
+        findById(vehiculoId);
+        if (documentos == null || documentos.isEmpty()) {
+            logger.error("ERROR ACTUALIZAR_DOCUMENTOS: LA LISTA DE DOCUMENTOS A ACTUALIZAR ES NULA O VACIA!");
+            throw new BusinessException("Debe enviar al menos un documento para actualizar");
+        }
+
+        List<VehiculoDocumento> actualizados = new ArrayList<>();
+        for (DocumentoActualizadoRequest docReq : documentos) {
+            VehiculoDocumento existente = vehiculoDocumentoRepository.findById(docReq.getVehiculoDocumentoId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "No existe un documento asociado con id " + docReq.getVehiculoDocumentoId()));
+            if (!existente.getVehiculo().getId().equals(vehiculoId)) {
+                throw new BusinessException("El documento asociado " + docReq.getVehiculoDocumentoId()
+                        + " no pertenece al vehículo " + vehiculoId);
+            }
+
+            existente.setFechaExpedicion(docReq.getFechaExpedicion());
+            existente.setFechaVencimiento(docReq.getFechaVencimiento());
+            existente.setEstado(docReq.getEstado());
+            if (docReq.getArchivoPdf() != null) {
+                existente.setArchivoPdf(docReq.getArchivoPdf());
+            }
+            actualizados.add(vehiculoDocumentoRepository.save(existente));
+        }
+        return actualizados;
     }
 
     // ================ BUSQUEDAS ================
@@ -185,6 +228,23 @@ public class VehiculoServiceImpl implements IVehiculoService {
         return vehiculoDocumentoRepository.findVehiculosByEstado(estado);
     }
 
+    // ================ SERVICIOS PUBLICOS (sin token) ================
+    @Override
+    public VehiculoCompletoResponse findCompletoByPlaca(String placa) {
+        Vehiculo vehiculo = findByPlaca(placa);
+        List<VehiculoDocumento> documentos = vehiculoDocumentoRepository.findByVehiculoId(vehiculo.getId());
+        List<VehiculoConductor> conductores = vehiculoConductorRepository.findByVehiculoId(vehiculo.getId());
+        return new VehiculoCompletoResponse(vehiculo, documentos, conductores);
+    }
+
+    @Override
+    public List<Vehiculo> findByDocumentosPorVencer(int dias) {
+        if (dias < 0) {
+            throw new BusinessException("El número de días debe ser mayor o igual a 0");
+        }
+        return vehiculoDocumentoRepository.findVehiculosPorVencer(LocalDate.now(), LocalDate.now().plusDays(dias));
+    }
+
     // Valida el formato de placa segun el tipo de vehiculo (regla que depende de dos campos a la vez,
     // por lo que no se puede resolver con una unica anotacion Bean Validation).
     private void validarPlaca(Vehiculo vehiculo) {
@@ -201,6 +261,23 @@ public class VehiculoServiceImpl implements IVehiculoService {
         if (vehiculo.getTipoVehiculo() == TipoVehiculo.MOTOCICLETA && !placa.matches(REGEX_PLACA_MOTOCICLETA)) {
             throw new BusinessException(
                     "La placa de una motocicleta debe tener 3 letras, 2 números y terminar en letra, ejemplo ABC12D");
+        }
+    }
+
+    // Un documento solo puede asociarse a un vehiculo del tipo al que aplica:
+    // A = solo automovil, M = solo motocicleta, AM = ambos.
+    private void validarCompatibilidad(Vehiculo vehiculo, Documento documento) {
+        String aplica = String.valueOf(documento.getTipoVehiculoAplica());
+        boolean compatible = "AM".equals(aplica)
+                || ("A".equals(aplica) && vehiculo.getTipoVehiculo() == TipoVehiculo.AUTOMOVIL)
+                || ("M".equals(aplica) && vehiculo.getTipoVehiculo() == TipoVehiculo.MOTOCICLETA);
+
+        if (!compatible) {
+            logger.error("ERROR ASOCIAR_DOCUMENTO: EL DOCUMENTO {} NO APLICA PARA {}!",
+                    documento.getNombre(), vehiculo.getTipoVehiculo());
+            throw new BusinessException("El documento " + documento.getNombre()
+                    + " solo aplica para vehículos tipo " + aplica
+                    + " y no se puede asociar a un " + vehiculo.getTipoVehiculo());
         }
     }
 }

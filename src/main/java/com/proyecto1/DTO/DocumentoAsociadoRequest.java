@@ -16,6 +16,9 @@ public class DocumentoAsociadoRequest {
     @NotNull(message = "La fecha de vencimiento es obligatoria")
     private LocalDate fechaVencimiento;
 
+    // Opcional: documento PDF en BASE64 (Jackson lo decodifica automaticamente a byte[]).
+    private byte[] archivoPdf;
+
     public DocumentoAsociadoRequest() {
     }
 
@@ -41,5 +44,13 @@ public class DocumentoAsociadoRequest {
 
     public void setFechaVencimiento(LocalDate fechaVencimiento) {
         this.fechaVencimiento = fechaVencimiento;
+    }
+
+    public byte[] getArchivoPdf() {
+        return archivoPdf;
+    }
+
+    public void setArchivoPdf(byte[] archivoPdf) {
+        this.archivoPdf = archivoPdf;
     }
 }

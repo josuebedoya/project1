@@ -118,6 +118,14 @@
         background: white;
     }
     input[type="file"] { padding: 0.4rem 0; border: none; font-size: 0.85rem; }
+    select {
+        padding: 0.6rem 0.7rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        background: #fafafa;
+    }
+    form { margin: 0; }
 
     button {
         padding: 0.6rem 1.25rem;
@@ -133,6 +141,24 @@
     }
     button:hover { background: var(--primary-hover); }
     button:disabled { background: #c7c9d9; cursor: not-allowed; }
+    .btn-secundario {
+        background: white;
+        color: var(--primary);
+        border: 1px solid var(--primary);
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+    }
+    .btn-secundario:hover { background: var(--primary-soft); }
+    .btn-peligro {
+        background: white;
+        color: var(--error);
+        border: 1px solid var(--error);
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+        margin-left: 0.35rem;
+    }
+    .btn-peligro:hover { background: var(--error-soft); }
+    .tabla-scroll { overflow-x: auto; }
 
     #mensaje, #mensajeCargue, #mensajeLogin {
         margin-top: 0.75rem;
@@ -300,6 +326,201 @@
         </section>
     </div>
 
+    <div class="grid-2 oculto" id="crudPanel">
+        <section class="card">
+            <h2><span class="icono">🚗</span> Vehículos</h2>
+            <form id="formVehiculo">
+                <input type="hidden" id="vehiculoId" />
+                <div class="campos">
+                    <div class="campo">
+                        <label for="vehiculoTipo">Tipo</label>
+                        <select id="vehiculoTipo">
+                            <option value="AUTOMOVIL">Automóvil</option>
+                            <option value="MOTOCICLETA">Motocicleta</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label for="vehiculoPlaca">Placa</label>
+                        <input id="vehiculoPlaca" type="text" placeholder="ABC123" maxlength="6" />
+                    </div>
+                    <div class="campo">
+                        <label for="vehiculoServicio">Servicio</label>
+                        <select id="vehiculoServicio">
+                            <option value="Pu">Público</option>
+                            <option value="Pr">Privado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="campos">
+                    <div class="campo">
+                        <label for="vehiculoCombustible">Combustible</label>
+                        <select id="vehiculoCombustible">
+                            <option value="GASOLINA">Gasolina</option>
+                            <option value="GAS">Gas</option>
+                            <option value="DIESEL">Diésel</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label for="vehiculoCapacidad">Capacidad</label>
+                        <input id="vehiculoCapacidad" type="text" placeholder="4" />
+                    </div>
+                    <div class="campo">
+                        <label for="vehiculoColor">Color</label>
+                        <input id="vehiculoColor" type="color" value="#4f46e5" />
+                    </div>
+                </div>
+                <div class="campos">
+                    <div class="campo">
+                        <label for="vehiculoModelo">Modelo</label>
+                        <input id="vehiculoModelo" type="text" placeholder="2024" />
+                    </div>
+                    <div class="campo">
+                        <label for="vehiculoMarca">Marca</label>
+                        <input id="vehiculoMarca" type="text" placeholder="Toyota" />
+                    </div>
+                    <div class="campo">
+                        <label for="vehiculoLinea">Línea</label>
+                        <input id="vehiculoLinea" type="text" placeholder="Corolla" />
+                    </div>
+                </div>
+                <div class="campos" id="vehiculoDocInicial">
+                    <div class="campo">
+                        <label for="vehiculoDocumentoId">Documento inicial</label>
+                        <select id="vehiculoDocumentoId"></select>
+                    </div>
+                    <div class="campo">
+                        <label for="vehiculoDocFechaExp">Fecha expedición</label>
+                        <input id="vehiculoDocFechaExp" type="date" />
+                    </div>
+                    <div class="campo">
+                        <label for="vehiculoDocFechaVen">Fecha vencimiento</label>
+                        <input id="vehiculoDocFechaVen" type="date" />
+                    </div>
+                </div>
+                <div class="campos">
+                    <button type="button" id="guardarVehiculo">Guardar</button>
+                    <button type="button" id="limpiarVehiculo" class="btn-secundario">Nuevo</button>
+                </div>
+            </form>
+            <div id="mensajeVehiculo"></div>
+            <div class="tabla-scroll">
+            <table>
+                <thead><tr><th>Id</th><th>Placa</th><th>Tipo</th><th>Marca/Línea</th><th></th></tr></thead>
+                <tbody id="tablaVehiculos"></tbody>
+            </table>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2><span class="icono">📄</span> Documentos</h2>
+            <form id="formDocumento">
+                <input type="hidden" id="documentoId" />
+                <div class="campos">
+                    <div class="campo"><label for="documentoCodigo">Código</label><input id="documentoCodigo" type="text" placeholder="SOAT" /></div>
+                    <div class="campo"><label for="documentoNombre">Nombre</label><input id="documentoNombre" type="text" placeholder="SOAT" /></div>
+                </div>
+                <div class="campos">
+                    <div class="campo">
+                        <label for="documentoTipoVehiculo">Aplica a</label>
+                        <select id="documentoTipoVehiculo">
+                            <option value="AM">Ambos</option>
+                            <option value="A">Automóvil</option>
+                            <option value="M">Motocicleta</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label for="documentoObligatoriedad">Obligatoriedad</label>
+                        <select id="documentoObligatoriedad">
+                            <option value="RR">Ambos</option>
+                            <option value="RA">Automóvil</option>
+                            <option value="RM">Motocicleta</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="campos">
+                    <div class="campo"><label for="documentoDescripcion">Descripción</label><input id="documentoDescripcion" type="text" placeholder="Opcional" /></div>
+                </div>
+                <div class="campos">
+                    <button type="button" id="guardarDocumento">Guardar</button>
+                    <button type="button" id="limpiarDocumento" class="btn-secundario">Nuevo</button>
+                </div>
+            </form>
+            <div id="mensajeDocumento"></div>
+            <div class="tabla-scroll">
+            <table>
+                <thead><tr><th>Id</th><th>Código</th><th>Nombre</th><th>Aplica</th><th></th></tr></thead>
+                <tbody id="tablaDocumentos"></tbody>
+            </table>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2><span class="icono">👤</span> Personas</h2>
+            <form id="formPersona">
+                <input type="hidden" id="personaId" />
+                <div class="campos">
+                    <div class="campo"><label for="personaIdentificacion">Identificación</label><input id="personaIdentificacion" type="text" placeholder="1001001001" /></div>
+                    <div class="campo"><label for="personaNombres">Nombres</label><input id="personaNombres" type="text" /></div>
+                    <div class="campo"><label for="personaApellidos">Apellidos</label><input id="personaApellidos" type="text" /></div>
+                </div>
+                <div class="campos">
+                    <div class="campo"><label for="personaCorreo">Correo</label><input id="personaCorreo" type="text" placeholder="correo@test.com" /></div>
+                    <div class="campo">
+                        <label for="personaTipo">Tipo</label>
+                        <select id="personaTipo">
+                            <option value="C">Conductor</option>
+                            <option value="A">Administrativo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="campos" id="personaCamposLicencia">
+                    <div class="campo"><label for="personaFechaLicencia">Vigencia licencia</label><input id="personaFechaLicencia" type="date" /></div>
+                    <div class="campo"><label for="personaLicencia">Licencia (texto libre)</label><input id="personaLicencia" type="text" placeholder="Ej. licencia-de-prueba" /></div>
+                </div>
+                <div class="campos">
+                    <button type="button" id="guardarPersona">Guardar</button>
+                    <button type="button" id="limpiarPersona" class="btn-secundario">Nuevo</button>
+                </div>
+            </form>
+            <div id="mensajePersona"></div>
+            <div class="tabla-scroll">
+            <table>
+                <thead><tr><th>Id</th><th>Identificación</th><th>Nombre</th><th>Tipo</th><th></th></tr></thead>
+                <tbody id="tablaPersonas"></tbody>
+            </table>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2><span class="icono">🔗</span> Vehículo ↔ Conductor</h2>
+            <div class="campos">
+                <div class="campo"><label for="vcPersonaId">Conductor</label><select id="vcPersonaId"></select></div>
+                <div class="campo"><label for="vcVehiculoId">Vehículo</label><select id="vcVehiculoId"></select></div>
+            </div>
+            <div class="campos">
+                <div class="campo"><label for="vcFecha">Fecha asociación</label><input id="vcFecha" type="date" /></div>
+                <div class="campo">
+                    <label for="vcEstado">Estado</label>
+                    <select id="vcEstado">
+                        <option value="PO">Puede Operar</option>
+                        <option value="EA">Espera Aprobación</option>
+                        <option value="RO">Restringido</option>
+                    </select>
+                </div>
+            </div>
+            <div class="campos">
+                <button type="button" id="guardarVehiculoConductor">Asociar</button>
+            </div>
+            <div id="mensajeVehiculoConductor"></div>
+            <div class="tabla-scroll">
+            <table>
+                <thead><tr><th>Id</th><th>Persona</th><th>Vehículo</th><th>Estado</th><th></th></tr></thead>
+                <tbody id="tablaVehiculoConductor"></tbody>
+            </table>
+            </div>
+        </section>
+    </div>
+
     <section class="card oculto" id="resultado">
         <h2><span class="icono">🗺️</span> Paradas de la ruta</h2>
         <table>
@@ -339,10 +560,10 @@
 </main>
 
 <script>
-    // ================= SESION (login basico: login+password -> apikey) =================
-    const CLAVE_STORAGE = 'proyecto1_apiKey';
+    // ================= SESION (login+password -> JWT, Authorization: Bearer <token>) =================
+    const CLAVE_STORAGE = 'proyecto1_jwt';
     const CLAVE_STORAGE_LOGIN = 'proyecto1_login';
-    let apiKeyActual = null;
+    let jwtActual = null;
 
     const sesionTexto = document.getElementById('sesionTexto');
     const loginFormulario = document.getElementById('loginFormulario');
@@ -355,10 +576,10 @@
         elemento.className = tipo || '';
     }
 
-    function guardarSesion(login, apikey) {
-        apiKeyActual = apikey;
+    function guardarSesion(login, token) {
+        jwtActual = token;
         try {
-            localStorage.setItem(CLAVE_STORAGE, apikey);
+            localStorage.setItem(CLAVE_STORAGE, token);
             localStorage.setItem(CLAVE_STORAGE_LOGIN, login);
         } catch (error) {
             // Sin localStorage (modo privado, etc.): la sesion solo dura mientras la pestaña siga abierta.
@@ -367,7 +588,7 @@
     }
 
     function cerrarSesion() {
-        apiKeyActual = null;
+        jwtActual = null;
         try {
             localStorage.removeItem(CLAVE_STORAGE);
             localStorage.removeItem(CLAVE_STORAGE_LOGIN);
@@ -379,17 +600,24 @@
 
     function actualizarVistaSesion(login) {
         const accionesPanel = document.getElementById('accionesPanel');
+        const crudPanel = document.getElementById('crudPanel');
         if (login) {
             sesionTexto.textContent = 'Conectado: ' + login;
             loginFormulario.classList.add('oculto');
             loginActivo.classList.remove('oculto');
             loginActivoNombre.textContent = login;
             accionesPanel.classList.remove('oculto');
+            crudPanel.classList.remove('oculto');
+            cargarVehiculos();
+            cargarDocumentos();
+            cargarPersonas();
+            cargarVehiculoConductor();
         } else {
             sesionTexto.textContent = 'No has iniciado sesión';
             loginFormulario.classList.remove('oculto');
             loginActivo.classList.add('oculto');
             accionesPanel.classList.add('oculto');
+            crudPanel.classList.add('oculto');
             document.getElementById('resultado').classList.add('oculto');
             document.getElementById('resultadoCargue').classList.add('oculto');
         }
@@ -397,10 +625,10 @@
 
     function restaurarSesionGuardada() {
         try {
-            const apikey = localStorage.getItem(CLAVE_STORAGE);
+            const token = localStorage.getItem(CLAVE_STORAGE);
             const login = localStorage.getItem(CLAVE_STORAGE_LOGIN);
-            if (apikey && login) {
-                apiKeyActual = apikey;
+            if (token && login) {
+                jwtActual = token;
                 actualizarVistaSesion(login);
             }
         } catch (error) {
@@ -420,7 +648,7 @@
         mostrarMensajeEn(mensajeLogin, 'Ingresando...', 'info');
 
         try {
-            const respuesta = await fetch('/proyecto1/usuario/login', {
+            const respuesta = await fetch('/proyecto1/usuario/authenticate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ login, password })
@@ -435,7 +663,7 @@
 
             document.getElementById('loginPassword').value = '';
             mostrarMensajeEn(mensajeLogin, '', '');
-            guardarSesion(cuerpo.login, cuerpo.apikey);
+            guardarSesion(cuerpo.login, cuerpo.token);
         } catch (error) {
             mostrarMensajeEn(mensajeLogin, 'No fue posible conectar con el servidor.', 'error');
         }
@@ -514,7 +742,7 @@
             document.getElementById('codigoRuta').value = codigoRutaForzado;
         }
 
-        if (!apiKeyActual) {
+        if (!jwtActual) {
             mostrarMensajeEn(mensaje, 'Inicia sesión primero para consultar rutas.', 'error');
             return;
         }
@@ -528,7 +756,7 @@
 
         try {
             const respuesta = await fetch('/proyecto1/trayecto/consulta/ruta/' + encodeURIComponent(codigoRuta), {
-                headers: { 'X-API-KEY': apiKeyActual }
+                headers: { 'Authorization': 'Bearer ' + jwtActual }
             });
 
             if (!respuesta.ok) {
@@ -567,7 +795,7 @@
     async function buscarPorUbicacion() {
         const texto = document.getElementById('textoUbicacion').value.trim();
 
-        if (!apiKeyActual) {
+        if (!jwtActual) {
             mostrarMensajeEn(mensajeUbicacion, 'Inicia sesión primero para buscar.', 'error');
             return;
         }
@@ -581,7 +809,7 @@
 
         try {
             const respuesta = await fetch('/proyecto1/trayecto/consulta/ubicacion/' + encodeURIComponent(texto), {
-                headers: { 'X-API-KEY': apiKeyActual }
+                headers: { 'Authorization': 'Bearer ' + jwtActual }
             });
 
             if (!respuesta.ok) {
@@ -635,7 +863,7 @@
     async function cargarExcel() {
         const archivoInput = document.getElementById('archivoExcel');
 
-        if (!apiKeyActual) {
+        if (!jwtActual) {
             mostrarMensajeEn(mensajeCargue, 'Inicia sesión primero para cargar trayectos.', 'error');
             return;
         }
@@ -653,7 +881,7 @@
         try {
             const respuesta = await fetch('/proyecto1/trayecto/cargue', {
                 method: 'POST',
-                headers: { 'X-API-KEY': apiKeyActual },
+                headers: { 'Authorization': 'Bearer ' + jwtActual },
                 body: formData
             });
 
@@ -686,6 +914,389 @@
     }
 
     btnCargar.addEventListener('click', cargarExcel);
+
+    // ================= CRUD VISUAL (Vehículo, Documento, Persona, Vehículo-Conductor) =================
+    async function apiFetch(url, opciones = {}) {
+        const headers = Object.assign({ 'Authorization': 'Bearer ' + jwtActual }, opciones.headers || {});
+        const respuesta = await fetch(url, Object.assign({}, opciones, { headers }));
+        const texto = await respuesta.text();
+        const cuerpo = texto ? JSON.parse(texto) : null;
+        if (!respuesta.ok) {
+            const detalle = cuerpo && (cuerpo.error || Object.values(cuerpo)[0]);
+            throw new Error(detalle || ('Error ' + respuesta.status));
+        }
+        return cuerpo;
+    }
+
+    // ---------- Vehículo ----------
+    let vehiculosCache = [];
+
+    async function cargarVehiculos() {
+        try {
+            vehiculosCache = await apiFetch('/proyecto1/vehiculo?page=0&size=50');
+            document.getElementById('tablaVehiculos').innerHTML = vehiculosCache.map(v => `
+                <tr>
+                    <td>${v.id}</td><td>${v.placa}</td><td>${v.tipoVehiculo}</td><td>${v.marca} ${v.linea}</td>
+                    <td>
+                        <button type="button" class="btn-secundario" onclick="editarVehiculo(${v.id})">Editar</button>
+                        <button type="button" class="btn-peligro" onclick="eliminarVehiculo(${v.id})">Eliminar</button>
+                    </td>
+                </tr>`).join('');
+            refrescarSelectVehiculoVC();
+        } catch (error) {
+            mostrarMensajeEn(document.getElementById('mensajeVehiculo'), error.message, 'error');
+        }
+    }
+
+    function refrescarSelectVehiculoVC() {
+        const select = document.getElementById('vcVehiculoId');
+        const actual = select.value;
+        select.innerHTML = vehiculosCache.map(v => `<option value="${v.id}">${v.placa} (${v.marca} ${v.linea})</option>`).join('');
+        if (actual && vehiculosCache.some(v => String(v.id) === actual)) {
+            select.value = actual;
+        }
+    }
+
+    function editarVehiculo(id) {
+        const v = vehiculosCache.find(x => x.id === id);
+        if (!v) return;
+        document.getElementById('vehiculoId').value = v.id;
+        document.getElementById('vehiculoTipo').value = v.tipoVehiculo;
+        document.getElementById('vehiculoPlaca').value = v.placa;
+        document.getElementById('vehiculoServicio').value = v.tipoServicio;
+        document.getElementById('vehiculoCombustible').value = v.tipoCombustible;
+        document.getElementById('vehiculoCapacidad').value = v.capacidadPasajeros;
+        document.getElementById('vehiculoColor').value = v.color;
+        document.getElementById('vehiculoModelo').value = v.modelo;
+        document.getElementById('vehiculoMarca').value = v.marca;
+        document.getElementById('vehiculoLinea').value = v.linea;
+        document.getElementById('vehiculoDocInicial').classList.add('oculto');
+        mostrarMensajeEn(document.getElementById('mensajeVehiculo'), 'Editando vehículo #' + id + ' (no se piden documentos al editar).', 'info');
+    }
+
+    function limpiarVehiculo() {
+        document.getElementById('formVehiculo').reset();
+        document.getElementById('vehiculoId').value = '';
+        document.getElementById('vehiculoDocInicial').classList.remove('oculto');
+        mostrarMensajeEn(document.getElementById('mensajeVehiculo'), '', '');
+    }
+
+    async function guardarVehiculo() {
+        const id = document.getElementById('vehiculoId').value;
+        const vehiculo = {
+            tipoVehiculo: document.getElementById('vehiculoTipo').value,
+            placa: document.getElementById('vehiculoPlaca').value.trim().toUpperCase(),
+            tipoServicio: document.getElementById('vehiculoServicio').value,
+            tipoCombustible: document.getElementById('vehiculoCombustible').value,
+            capacidadPasajeros: Number(document.getElementById('vehiculoCapacidad').value),
+            color: document.getElementById('vehiculoColor').value.trim(),
+            modelo: Number(document.getElementById('vehiculoModelo').value),
+            marca: document.getElementById('vehiculoMarca').value.trim(),
+            linea: document.getElementById('vehiculoLinea').value.trim()
+        };
+        const msg = document.getElementById('mensajeVehiculo');
+        try {
+            if (id) {
+                vehiculo.id = Number(id);
+                await apiFetch('/proyecto1/vehiculo', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(vehiculo)
+                });
+                mostrarMensajeEn(msg, 'Vehículo actualizado.', 'info');
+            } else {
+                const body = {
+                    vehiculo,
+                    documentos: [{
+                        documentoId: Number(document.getElementById('vehiculoDocumentoId').value),
+                        fechaExpedicion: document.getElementById('vehiculoDocFechaExp').value.trim(),
+                        fechaVencimiento: document.getElementById('vehiculoDocFechaVen').value.trim()
+                    }]
+                };
+                await apiFetch('/proyecto1/vehiculo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                mostrarMensajeEn(msg, 'Vehículo creado.', 'info');
+            }
+            limpiarVehiculo();
+            cargarVehiculos();
+        } catch (error) {
+            mostrarMensajeEn(msg, error.message, 'error');
+        }
+    }
+
+    async function eliminarVehiculo(id) {
+        const msg = document.getElementById('mensajeVehiculo');
+        try {
+            await apiFetch('/proyecto1/vehiculo/' + id, { method: 'DELETE' });
+            mostrarMensajeEn(msg, 'Vehículo eliminado.', 'info');
+            cargarVehiculos();
+        } catch (error) {
+            mostrarMensajeEn(msg, error.message, 'error');
+        }
+    }
+
+    document.getElementById('guardarVehiculo').addEventListener('click', guardarVehiculo);
+    document.getElementById('limpiarVehiculo').addEventListener('click', limpiarVehiculo);
+
+    // ---------- Documento ----------
+    let documentosCache = [];
+
+    async function cargarDocumentos() {
+        try {
+            documentosCache = await apiFetch('/proyecto1/documento?page=0&size=50');
+            document.getElementById('tablaDocumentos').innerHTML = documentosCache.map(d => `
+                <tr>
+                    <td>${d.id}</td><td>${d.codigo}</td><td>${d.nombre}</td><td>${d.tipoVehiculoAplica}</td>
+                    <td>
+                        <button type="button" class="btn-secundario" onclick="editarDocumento(${d.id})">Editar</button>
+                        <button type="button" class="btn-peligro" onclick="eliminarDocumento(${d.id})">Eliminar</button>
+                    </td>
+                </tr>`).join('');
+            refrescarSelectDocumentos();
+        } catch (error) {
+            mostrarMensajeEn(document.getElementById('mensajeDocumento'), error.message, 'error');
+        }
+    }
+
+    function refrescarSelectDocumentos() {
+        const select = document.getElementById('vehiculoDocumentoId');
+        const actual = select.value;
+        select.innerHTML = documentosCache.map(d => `<option value="${d.id}">${d.codigo} - ${d.nombre}</option>`).join('');
+        if (actual && documentosCache.some(d => String(d.id) === actual)) {
+            select.value = actual;
+        }
+    }
+
+    function editarDocumento(id) {
+        const d = documentosCache.find(x => x.id === id);
+        if (!d) return;
+        document.getElementById('documentoId').value = d.id;
+        document.getElementById('documentoCodigo').value = d.codigo;
+        document.getElementById('documentoNombre').value = d.nombre;
+        document.getElementById('documentoTipoVehiculo').value = d.tipoVehiculoAplica;
+        document.getElementById('documentoObligatoriedad').value = d.obligatoriedad;
+        document.getElementById('documentoDescripcion').value = d.descripcion || '';
+    }
+
+    function limpiarDocumento() {
+        document.getElementById('formDocumento').reset();
+        document.getElementById('documentoId').value = '';
+        mostrarMensajeEn(document.getElementById('mensajeDocumento'), '', '');
+    }
+
+    async function guardarDocumento() {
+        const id = document.getElementById('documentoId').value;
+        const documento = {
+            codigo: document.getElementById('documentoCodigo').value.trim(),
+            nombre: document.getElementById('documentoNombre').value.trim(),
+            tipoVehiculoAplica: document.getElementById('documentoTipoVehiculo').value,
+            obligatoriedad: document.getElementById('documentoObligatoriedad').value,
+            descripcion: document.getElementById('documentoDescripcion').value.trim()
+        };
+        if (id) {
+            documento.id = Number(id);
+        }
+        const msg = document.getElementById('mensajeDocumento');
+        try {
+            await apiFetch('/proyecto1/documento', {
+                method: id ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(documento)
+            });
+            mostrarMensajeEn(msg, id ? 'Documento actualizado.' : 'Documento creado.', 'info');
+            limpiarDocumento();
+            cargarDocumentos();
+        } catch (error) {
+            mostrarMensajeEn(msg, error.message, 'error');
+        }
+    }
+
+    async function eliminarDocumento(id) {
+        const msg = document.getElementById('mensajeDocumento');
+        try {
+            await apiFetch('/proyecto1/documento/' + id, { method: 'DELETE' });
+            mostrarMensajeEn(msg, 'Documento eliminado.', 'info');
+            cargarDocumentos();
+        } catch (error) {
+            mostrarMensajeEn(msg, error.message, 'error');
+        }
+    }
+
+    document.getElementById('guardarDocumento').addEventListener('click', guardarDocumento);
+    document.getElementById('limpiarDocumento').addEventListener('click', limpiarDocumento);
+
+    // ---------- Persona ----------
+    let personasCache = [];
+
+    function actualizarCamposLicencia() {
+        const tipo = document.getElementById('personaTipo').value;
+        document.getElementById('personaCamposLicencia').classList.toggle('oculto', tipo !== 'C');
+    }
+    document.getElementById('personaTipo').addEventListener('change', actualizarCamposLicencia);
+    actualizarCamposLicencia();
+
+    async function cargarPersonas() {
+        try {
+            personasCache = await apiFetch('/proyecto1/persona?page=0&size=50');
+            document.getElementById('tablaPersonas').innerHTML = personasCache.map(p => `
+                <tr>
+                    <td>${p.id}</td><td>${p.identificacion}</td><td>${p.nombres} ${p.apellidos}</td><td>${p.tipoPersona}</td>
+                    <td><button type="button" class="btn-secundario" onclick="editarPersona(${p.id})">Editar</button></td>
+                </tr>`).join('');
+            refrescarSelectPersonaVC();
+        } catch (error) {
+            mostrarMensajeEn(document.getElementById('mensajePersona'), error.message, 'error');
+        }
+    }
+
+    function refrescarSelectPersonaVC() {
+        const select = document.getElementById('vcPersonaId');
+        const actual = select.value;
+        const conductores = personasCache.filter(p => p.tipoPersona === 'C');
+        select.innerHTML = conductores.map(p => `<option value="${p.id}">${p.nombres} ${p.apellidos} (${p.identificacion})</option>`).join('');
+        if (actual && conductores.some(p => String(p.id) === actual)) {
+            select.value = actual;
+        }
+    }
+
+    function editarPersona(id) {
+        const p = personasCache.find(x => x.id === id);
+        if (!p) return;
+        document.getElementById('personaId').value = p.id;
+        document.getElementById('personaIdentificacion').value = p.identificacion;
+        document.getElementById('personaNombres').value = p.nombres;
+        document.getElementById('personaApellidos').value = p.apellidos;
+        document.getElementById('personaCorreo').value = p.correoElectronico;
+        document.getElementById('personaTipo').value = p.tipoPersona;
+        document.getElementById('personaFechaLicencia').value = p.fechaVigenciaLicencia || '';
+        document.getElementById('personaLicencia').value = '';
+        actualizarCamposLicencia();
+    }
+
+    function limpiarPersona() {
+        document.getElementById('formPersona').reset();
+        document.getElementById('personaId').value = '';
+        actualizarCamposLicencia();
+        mostrarMensajeEn(document.getElementById('mensajePersona'), '', '');
+    }
+
+    async function guardarPersona() {
+        const id = document.getElementById('personaId').value;
+        const tipo = document.getElementById('personaTipo').value;
+        const persona = {
+            identificacion: document.getElementById('personaIdentificacion').value.trim(),
+            tipoIdentificacion: 'CC',
+            nombres: document.getElementById('personaNombres').value.trim(),
+            apellidos: document.getElementById('personaApellidos').value.trim(),
+            correoElectronico: document.getElementById('personaCorreo').value.trim(),
+            tipoPersona: tipo
+        };
+        if (tipo === 'C') {
+            persona.fechaVigenciaLicencia = document.getElementById('personaFechaLicencia').value.trim();
+            const licenciaTexto = document.getElementById('personaLicencia').value.trim();
+            if (licenciaTexto) {
+                persona.licenciaConduccion = btoa(licenciaTexto);
+            } else if (id) {
+                const original = personasCache.find(x => x.id === Number(id));
+                persona.licenciaConduccion = (original && original.licenciaConduccion) || btoa('licencia-de-prueba');
+            } else {
+                persona.licenciaConduccion = btoa('licencia-de-prueba');
+            }
+        }
+        const msg = document.getElementById('mensajePersona');
+        try {
+            if (id) {
+                persona.id = Number(id);
+                await apiFetch('/proyecto1/persona', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(persona)
+                });
+                mostrarMensajeEn(msg, 'Persona actualizada.', 'info');
+            } else {
+                const creada = await apiFetch('/proyecto1/persona', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(persona)
+                });
+                mostrarMensajeEn(msg, creada && creada.login
+                    ? ('Persona creada. Usuario generado → login: ' + creada.login + ', password: ' + creada.password)
+                    : 'Persona creada.', 'info');
+            }
+            limpiarPersona();
+            cargarPersonas();
+        } catch (error) {
+            mostrarMensajeEn(msg, error.message, 'error');
+        }
+    }
+
+    document.getElementById('guardarPersona').addEventListener('click', guardarPersona);
+    document.getElementById('limpiarPersona').addEventListener('click', limpiarPersona);
+
+    // ---------- Vehículo-Conductor ----------
+    async function cargarVehiculoConductor() {
+        try {
+            const lista = await apiFetch('/proyecto1/vehiculo-conductor?page=0&size=50');
+            document.getElementById('tablaVehiculoConductor').innerHTML = lista.map(vc => `
+                <tr>
+                    <td>${vc.id}</td>
+                    <td>${vc.persona ? (vc.persona.nombres + ' ' + vc.persona.apellidos) : '-'}</td>
+                    <td>${vc.vehiculo ? vc.vehiculo.placa : '-'}</td>
+                    <td>
+                        <select id="vcEstadoFila${vc.id}">
+                            <option value="PO" ${vc.estado === 'PO' ? 'selected' : ''}>PO</option>
+                            <option value="EA" ${vc.estado === 'EA' ? 'selected' : ''}>EA</option>
+                            <option value="RO" ${vc.estado === 'RO' ? 'selected' : ''}>RO</option>
+                        </select>
+                    </td>
+                    <td><button type="button" class="btn-secundario" onclick="cambiarEstadoVC(${vc.id})">Actualizar</button></td>
+                </tr>`).join('');
+        } catch (error) {
+            mostrarMensajeEn(document.getElementById('mensajeVehiculoConductor'), error.message, 'error');
+        }
+    }
+
+    async function cambiarEstadoVC(id) {
+        const estado = document.getElementById('vcEstadoFila' + id).value;
+        const msg = document.getElementById('mensajeVehiculoConductor');
+        try {
+            await apiFetch('/proyecto1/vehiculo-conductor/' + id + '/estado', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ estado })
+            });
+            mostrarMensajeEn(msg, 'Estado actualizado.', 'info');
+            cargarVehiculoConductor();
+        } catch (error) {
+            mostrarMensajeEn(msg, error.message, 'error');
+        }
+    }
+
+    async function asociarVehiculoConductor() {
+        const body = {
+            personaId: Number(document.getElementById('vcPersonaId').value),
+            vehiculoId: Number(document.getElementById('vcVehiculoId').value),
+            fechaAsociacion: document.getElementById('vcFecha').value.trim(),
+            estado: document.getElementById('vcEstado').value
+        };
+        const msg = document.getElementById('mensajeVehiculoConductor');
+        try {
+            await apiFetch('/proyecto1/vehiculo-conductor', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            mostrarMensajeEn(msg, 'Conductor asociado al vehículo.', 'info');
+            cargarVehiculoConductor();
+        } catch (error) {
+            mostrarMensajeEn(msg, error.message, 'error');
+        }
+    }
+
+    document.getElementById('guardarVehiculoConductor').addEventListener('click', asociarVehiculoConductor);
 </script>
 </body>
 </html>

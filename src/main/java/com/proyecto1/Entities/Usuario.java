@@ -19,33 +19,33 @@ import jakarta.validation.constraints.NotBlank;
 // mas restriccion unica sobre idpersona para forzar la relacion 1 a 1).
 @Entity
 @Table(name = "Usuario", schema = "PPOOII", uniqueConstraints = {
-        @UniqueConstraint(name = "UQ_USUARIO_IDPERSONA", columnNames = "id_persona"),
-        @UniqueConstraint(name = "UQ_USUARIO_APIKEY", columnNames = "api_key")
+        @UniqueConstraint(name = "UQ_USUARIO_IDPERSONA", columnNames = "IdPersona"),
+        @UniqueConstraint(name = "UQ_USUARIO_APIKEY", columnNames = "ApiKey")
 })
 @IdClass(UsuarioId.class)
 public class Usuario implements Serializable {
 
     @Id
-    @Column(name = "id_persona")
+    @Column(name = "IdPersona")
     private Long idpersona;
 
     @Id
     @NotBlank(message = "El login es obligatorio")
-    @Column(name = "login", nullable = false, length = 30)
+    @Column(name = "Login", nullable = false, length = 30)
     private String login;
 
-    // Solo lectura: la columna id_persona se escribe a traves del atributo idpersona.
+    // Solo lectura: la columna IdPersona se escribe a traves del atributo idpersona.
     @OneToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "id_persona", nullable = false, insertable = false, updatable = false,
+    @JoinColumn(name = "IdPersona", nullable = false, insertable = false, updatable = false,
             foreignKey = @ForeignKey(name = "FK_USUARIO_PERSONA"))
     private Persona persona;
 
     @NotBlank(message = "El password es obligatorio")
-    @Column(name = "password", nullable = false, length = 255)
+    @Column(name = "Password", nullable = false, length = 255)
     private String password;
 
     @NotBlank(message = "El apikey es obligatorio")
-    @Column(name = "api_key", nullable = false, length = 255)
+    @Column(name = "ApiKey", nullable = false, length = 255)
     private String apikey;
 
     public Usuario() {

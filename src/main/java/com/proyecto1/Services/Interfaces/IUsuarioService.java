@@ -1,6 +1,7 @@
 package com.proyecto1.Services.Interfaces;
 
 import com.proyecto1.DTO.ApiKeyResponse;
+import com.proyecto1.DTO.TokenResponse;
 
 public interface IUsuarioService {
 
@@ -9,4 +10,6 @@ public interface IUsuarioService {
     ApiKeyResponse regenerarApikey(String login);
 
     ApiKeyResponse login(String login, String password);
+
+    TokenResponse authenticate(String login, String password);
 }

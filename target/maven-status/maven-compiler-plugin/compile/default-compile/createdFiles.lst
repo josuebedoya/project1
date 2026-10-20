@@ -1,1 +1,4 @@
 com\proyecto1\DTO\CargueTrayectoResponse.class
+com\proyecto1\Exception\GlobalExceptionHandler.class
+com\proyecto1\Exception\ResourceNotFoundException.class
+com\proyecto1\Exception\BusinessException.class

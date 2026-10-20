@@ -18,8 +18,15 @@ import com.proyecto1.DTO.CargueTrayectoResponse;
 import com.proyecto1.Entities.TrayectoTmp;
 import com.proyecto1.Services.Interfaces.ITrayectoCargueService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/proyecto1/trayecto/cargue")
+@Tag(name = "Cargue Masivo", description = "Cargue de trayectos desde una plantilla Excel vía procedimientos almacenados (Fase 4)")
+@SecurityRequirement(name = "bearerAuth")
 public class TrayectoCargueController {
 
     // ==========INYECCION DEL SERVICE==========
@@ -27,15 +34,20 @@ public class TrayectoCargueController {
     @Qualifier("TrayectoCargueService")
     private ITrayectoCargueService trayectoCargueService;
 
-    // POST: cargue masivo de trayectos a partir de la plantilla Excel (multipart/form-data, campo "archivo").
+    @Operation(summary = "Cargar Excel de trayectos", description = "Sube una plantilla Excel (.xlsx, "
+            + "campo \"archivo\") con trayectos. Cada fila se carga sin alterar (sp_trayecto_cargue), luego "
+            + "se valida (sp_trayecto_validar) y las filas válidas se trasladan a la tabla Trayecto "
+            + "(sp_trayecto_procesar). Devuelve el detalle de cada fila con su estado y, si aplica, el error.")
     @PostMapping
     public ResponseEntity<CargueTrayectoResponse> cargar(@RequestParam("archivo") MultipartFile archivo) {
         return ResponseEntity.status(HttpStatus.CREATED).body(trayectoCargueService.cargarExcel(archivo));
     }
 
-    // GET: consulta de los registros de un cargue especifico por su identificador.
+    @Operation(summary = "Consultar resultado de un cargue", description = "Devuelve los registros de un "
+            + "cargue específico (formato yyyyMMddHHmm) con su estado (CARGADO, VALIDADO, PROCESADO o ERROR) "
+            + "y la observación acumulada de errores, si los tiene.")
     @GetMapping("/{idCargue}")
-    public ResponseEntity<List<TrayectoTmp>> consultarCargue(@PathVariable("idCargue") Long idCargue) {
+    public ResponseEntity<List<TrayectoTmp>> consultarCargue(@Parameter(description = "Identificador del cargue (yyyyMMddHHmm)") @PathVariable("idCargue") Long idCargue) {
         return ResponseEntity.ok(trayectoCargueService.consultarCargue(idCargue));
     }
 }

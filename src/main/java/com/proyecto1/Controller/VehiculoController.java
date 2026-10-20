@@ -28,10 +28,15 @@ import com.proyecto1.Entities.Vehiculo;
 import com.proyecto1.Entities.VehiculoDocumento;
 import com.proyecto1.Services.Interfaces.IVehiculoService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/proyecto1/vehiculo")
+@Tag(name = "Vehículo", description = "CRUD de vehículos, sus documentos asociados y búsquedas (Fase 1-2)")
 public class VehiculoController {
 
     // ==========INYECCION DEL SERVICE==========
@@ -40,7 +45,9 @@ public class VehiculoController {
     private IVehiculoService vehiculoService;
 
     // ==========METODOS HTTP CRUD==================
-    // POST: crea un vehiculo, requiere al menos un documento asociado en el body.
+    @Operation(summary = "Crear vehículo", description = "Crea un vehículo junto con al menos un documento "
+            + "asociado (obligatorio). Cada documento nace en estado EN_VERIFICACION.")
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping
     public ResponseEntity<VehiculoDetalleResponse> agregarVehiculo(@RequestBody @Valid VehiculoRequest request) {
         Vehiculo creado = vehiculoService.crear(request);
@@ -48,88 +55,111 @@ public class VehiculoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new VehiculoDetalleResponse(creado, documentos));
     }
 
-    // PUT: actualiza los datos propios del vehiculo (no sus documentos).
+    @Operation(summary = "Editar vehículo", description = "Actualiza los datos propios del vehículo "
+            + "(no modifica sus documentos asociados). El id va dentro del body.")
+    @SecurityRequirement(name = "bearerAuth")
     @PutMapping
     public ResponseEntity<Vehiculo> editarVehiculo(@RequestBody @Valid Vehiculo vehiculo) {
         return ResponseEntity.ok(vehiculoService.actualizar(vehiculo));
     }
 
-    // DELETE
+    @Operation(summary = "Eliminar vehículo", description = "Elimina el vehículo y sus relaciones con "
+            + "documentos y conductores.")
+    @SecurityRequirement(name = "bearerAuth")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarVehiculo(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> eliminarVehiculo(@Parameter(description = "Id del vehículo") @PathVariable("id") Long id) {
         vehiculoService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
 
-    // GET por id (incluye documentos asociados)
+    @Operation(summary = "Consultar vehículo por id", description = "Devuelve el vehículo junto con los "
+            + "documentos que tiene asociados.")
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/{id}")
-    public ResponseEntity<VehiculoDetalleResponse> getById(@PathVariable("id") Long id) {
+    public ResponseEntity<VehiculoDetalleResponse> getById(@Parameter(description = "Id del vehículo") @PathVariable("id") Long id) {
         Vehiculo vehiculo = vehiculoService.findById(id);
         List<VehiculoDocumento> documentos = vehiculoService.findDocumentosByVehiculoId(id);
         return ResponseEntity.ok(new VehiculoDetalleResponse(vehiculo, documentos));
     }
 
-    // GET listado paginado
+    @Operation(summary = "Listar vehículos", description = "Listado paginado de todos los vehículos registrados.")
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping
     public ResponseEntity<List<Vehiculo>> listadoVehiculos(Pageable pageable) {
         return ResponseEntity.ok(vehiculoService.consultarVehiculos(pageable));
     }
 
     // ================MÉTODOS HTTP DE BÚSQUEDA ================
-    // Buscar vehiculo por numero de placa.
+    @Operation(summary = "Buscar por placa", description = "Busca un vehículo por su número de placa exacto.")
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/placa/{placa}")
-    public ResponseEntity<Vehiculo> getByPlaca(@PathVariable("placa") String placa) {
+    public ResponseEntity<Vehiculo> getByPlaca(@Parameter(description = "Placa del vehículo") @PathVariable("placa") String placa) {
         return ResponseEntity.ok(vehiculoService.findByPlaca(placa));
     }
 
-    // Buscar vehiculos por tipo de vehiculo (AUTOMOVIL | MOTOCICLETA).
+    @Operation(summary = "Buscar por tipo de vehículo", description = "Lista los vehículos de un tipo "
+            + "específico (AUTOMOVIL o MOTOCICLETA).")
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/tipo/{tipoVehiculo}")
     public ResponseEntity<List<Vehiculo>> getByTipoVehiculo(@PathVariable("tipoVehiculo") TipoVehiculo tipoVehiculo) {
         return ResponseEntity.ok(vehiculoService.findByTipoVehiculo(tipoVehiculo));
     }
 
-    // Buscar vehiculos que tengan en comun un tipo de documento (por id del documento parametrizado).
+    @Operation(summary = "Buscar por documento en común", description = "Lista los vehículos que tienen "
+            + "asociado un mismo documento parametrizado, dado su id.")
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/documento/{documentoId}")
-    public ResponseEntity<List<Vehiculo>> getByDocumento(@PathVariable("documentoId") Long documentoId) {
+    public ResponseEntity<List<Vehiculo>> getByDocumento(@Parameter(description = "Id del documento parametrizado") @PathVariable("documentoId") Long documentoId) {
         return ResponseEntity.ok(vehiculoService.findByDocumentoId(documentoId));
     }
 
-    // Buscar vehiculos segun el estado del documento asociado (HABILITADO | VENCIDO | EN_VERIFICACION).
+    @Operation(summary = "Buscar por estado de documento", description = "Lista los vehículos que tienen "
+            + "algún documento en el estado indicado (HABILITADO, VENCIDO o EN_VERIFICACION).")
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/estado-documento/{estado}")
     public ResponseEntity<List<Vehiculo>> getByEstadoDocumento(@PathVariable("estado") EstadoDocumento estado) {
         return ResponseEntity.ok(vehiculoService.findByEstadoDocumento(estado));
     }
 
     // ================ AGREGAR/ACTUALIZAR DOCUMENTOS DE UN VEHICULO EXISTENTE ================
+    @Operation(summary = "Agregar documentos a un vehículo", description = "Asocia uno o varios documentos "
+            + "nuevos a un vehículo existente (opcionalmente con el PDF en Base64). Nacen en EN_VERIFICACION.")
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/{id}/documentos")
-    public ResponseEntity<List<VehiculoDocumento>> agregarDocumentos(@PathVariable("id") Long id,
+    public ResponseEntity<List<VehiculoDocumento>> agregarDocumentos(@Parameter(description = "Id del vehículo") @PathVariable("id") Long id,
             @RequestBody @Valid List<DocumentoAsociadoRequest> documentos) {
         return ResponseEntity.status(HttpStatus.CREATED).body(vehiculoService.agregarDocumentos(id, documentos));
     }
 
+    @Operation(summary = "Actualizar documentos de un vehículo", description = "Actualiza uno o varios "
+            + "documentos ya asociados a un vehículo (fechas, estado y, opcionalmente, el PDF en Base64).")
+    @SecurityRequirement(name = "bearerAuth")
     @PutMapping("/{id}/documentos")
-    public ResponseEntity<List<VehiculoDocumento>> actualizarDocumentos(@PathVariable("id") Long id,
+    public ResponseEntity<List<VehiculoDocumento>> actualizarDocumentos(@Parameter(description = "Id del vehículo") @PathVariable("id") Long id,
             @RequestBody @Valid List<DocumentoActualizadoRequest> documentos) {
         return ResponseEntity.ok(vehiculoService.actualizarDocumentos(id, documentos));
     }
 
     // ================ SERVICIOS PUBLICOS (no requieren token) ================
-    // Vehiculos que tengan documentos vencidos.
+    @Operation(summary = "[Público] Vehículos con documentos vencidos", description = "Lista todos los "
+            + "vehículos que tienen al menos un documento en estado VENCIDO. No requiere autenticación.")
     @GetMapping("/publico/documentos-vencidos")
     public ResponseEntity<List<Vehiculo>> getVehiculosConDocumentosVencidos() {
         return ResponseEntity.ok(vehiculoService.findByEstadoDocumento(EstadoDocumento.VENCIDO));
     }
 
-    // Vehiculos con documentos por vencer dentro de los proximos "dias" (por defecto 30).
+    @Operation(summary = "[Público] Vehículos con documentos por vencer", description = "Lista los vehículos "
+            + "con algún documento que vence dentro de los próximos \"dias\" (por defecto 30). No requiere autenticación.")
     @GetMapping("/publico/documentos-por-vencer")
     public ResponseEntity<List<Vehiculo>> getVehiculosConDocumentosPorVencer(
-            @RequestParam(name = "dias", defaultValue = "30") int dias) {
+            @Parameter(description = "Ventana de días hacia adelante a considerar") @RequestParam(name = "dias", defaultValue = "30") int dias) {
         return ResponseEntity.ok(vehiculoService.findByDocumentosPorVencer(dias));
     }
 
-    // Vehiculo por placa, con la informacion de conductores y documentos asociados.
+    @Operation(summary = "[Público] Vehículo completo por placa", description = "Devuelve un vehículo por "
+            + "placa junto con sus conductores y documentos asociados. No requiere autenticación.")
     @GetMapping("/publico/placa/{placa}")
-    public ResponseEntity<VehiculoCompletoResponse> getCompletoByPlaca(@PathVariable("placa") String placa) {
+    public ResponseEntity<VehiculoCompletoResponse> getCompletoByPlaca(@Parameter(description = "Placa del vehículo") @PathVariable("placa") String placa) {
         return ResponseEntity.ok(vehiculoService.findCompletoByPlaca(placa));
     }
 }

@@ -132,6 +132,16 @@ public class TrayectoServiceImpl implements ITrayectoService {
         return trayectos;
     }
 
+    // Busqueda libre por texto en la ubicacion, para cuando no se conoce el codigo de ruta
+    // (servicio protegido). No es un error que no haya coincidencias: devuelve lista vacia.
+    @Override
+    public List<Trayecto> findByUbicacion(String texto) {
+        if (texto == null || texto.isBlank()) {
+            throw new BusinessException("Debe indicar un texto de búsqueda");
+        }
+        return trayectoRepository.findByUbicacionContainingIgnoreCase(texto.trim());
+    }
+
     // Codigos de ruta (agrupados) en los que ha participado un conductor (servicio protegido).
     @Override
     public List<String> findCodigosRutaByConductor(String identificacion) {

@@ -1,10 +1,3 @@
--- =====================================================================
--- Fase 2 - Persona, Usuario, relacion Vehiculo-Persona (conductor) y
--- adicion de campo BLOB en VehiculoDocumento (Proyecto_E2_V2.pdf)
---
--- Requiere haber ejecutado antes schema_fase1.sql (Vehiculo, Documento,
--- VehiculoDocumento).
--- =====================================================================
 
 USE PPOOII;
 

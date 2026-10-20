@@ -6,10 +6,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
-import jakarta.persistence.IdClass;
 import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -35,7 +34,7 @@ public class Usuario implements Serializable {
     @Column(name = "Login", nullable = false, length = 30)
     private String login;
 
-    @MapsId("idpersona")
+    // Solo lectura: la columna IdPersona se escribe a traves del atributo idpersona.
     @OneToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "IdPersona", nullable = false, insertable = false, updatable = false,
             foreignKey = @ForeignKey(name = "FK_USUARIO_PERSONA"))
@@ -46,7 +45,7 @@ public class Usuario implements Serializable {
     private String password;
 
     @NotBlank(message = "El apikey es obligatorio")
-    @Column(name = "ApiKey", nullable = false, length = 255, unique = true)
+    @Column(name = "ApiKey", nullable = false, length = 255)
     private String apikey;
 
     public Usuario() {

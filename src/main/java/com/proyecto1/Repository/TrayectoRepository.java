@@ -23,6 +23,10 @@ public interface TrayectoRepository extends JpaRepository<Trayecto, Long> {
     // Trayectos pendientes de geocodificar (tarea programada cada 90 segundos).
     List<Trayecto> findByLatitudIsNullOrLongitudIsNull();
 
+    // Busqueda de rutas por texto libre en la ubicacion (sin importar mayusculas/minusculas),
+    // para cuando no se conoce el codigo de ruta exacto.
+    List<Trayecto> findByUbicacionContainingIgnoreCase(String texto);
+
     // Trayectos de rutas donde el vehiculo no esta habilitado o el conductor esta restringido.
     List<Trayecto> findByVehiculoIdInOrPersonaIdIn(List<Long> vehiculoIds, List<Long> personaIds);
 }

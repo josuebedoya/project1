@@ -12,6 +12,8 @@ public interface ITrayectoService {
 
     List<Trayecto> findByCodigoRuta(String codigoRuta);
 
+    List<Trayecto> findByUbicacion(String texto);
+
     List<String> findCodigosRutaByConductor(String identificacion);
 
     List<RutaConductorResponse> findRutasByPlaca(String placa);

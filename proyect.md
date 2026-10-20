@@ -208,3 +208,50 @@ Crear las siguientes **tareas programadas** a nivel de la aplicación Spring Boo
 Crear una **interfaz visual web** en la que se puedan visualizar los diferentes trayectos o paradas de un código de ruta específico.
  
 *Ejemplo (imagen del PDF):* una captura de Google Maps de una ruta en Ibagué con 5 paradas (Conservatorio del Tolima, Museo Panóptico de Ibagué, La Estación Centro Comercial Ibagué, Acqua Power Center y Parque Deportivo), listadas a la izquierda y marcadas sobre el mapa, con la ruta trazada entre ellas.
+
+---
+
+# Fase 4
+
+*(Fuente: Proyecto_E4_V2.pdf)*
+
+## Arquitectura
+
+Misma arquitectura de las fases anteriores (`@Controller` → `@Service` → `@Repository`, con `View`).
+
+- El componente **View** será reemplazado por las invocaciones de los servicios a través de **Postman**.
+- Diseño tomado de https://www.arquitecturajava.com/spring-stereotypes/
+- **Nota:** Se mantienen las mismas definiciones de arquitectura y tecnologías sugeridas en la entrega 1 del proyecto final.
+
+## Estructura Base de Datos
+
+Se requiere diseñar y construir las siguientes entidades a nivel de base de datos.
+
+### Trayecto_tmp
+
+El propósito de esta entidad es la de almacenar los datos correspondientes al archivo de cargue de Excel que representa los trayectos que realiza un respectivo conductor con un vehículo específico.
+
+Importante tener en cuenta para esta entidad, es que deberá tener los mismos campos que la entidad transaccional de la aplicación que en este caso es **Trayecto**, y adicionalmente deberá tener los siguientes campos y condiciones.
+
+- Identificador de trayecto_tmp (**Primary Key**).
+- Estado. Este campo representa el estado en que se encuentra el registro, es decir, si se cargó, se validó, se procesó o en su defecto si contiene algún tipo de error o restricción para ser vinculado a la tabla transaccional de la aplicación (**Trayecto**). Estados válidos (**CARGADO – VALIDADO – PROCESADO - ERROR**).
+- Observación, este campo representa una descripción que debe ser **acumulativa** de los errores o restricciones identificadas del registro candidato a vincular en la tabla transaccional de la aplicación (**Trayecto**).
+- IdCargue, este campo debe ser de tipo numérico y debe ser la representación del año, mes, día, hora y minutos en que se carga el archivo de Excel y de esta manera identificar los registros de cada cargue que se realice.
+
+> **Notas:**
+> - Para el caso de esta entidad crear restricciones de chequeo o validación sobre el campo de estado.
+> - Los campos réplica de la entidad transaccional de la aplicación (**Trayecto**) deberá considerarse con valores de texto y/o compatibles con los tipos permitidos del archivo Excel.
+
+## Requerimientos Servicios
+
+- Crear un servicio con el propósito específico de cargar trayectos a la aplicación cumpliendo los requerimientos y validación definidas en las entregas anteriores.
+
+  Este cargue se deberá realizar a través de una plantilla definida por los CIPAS y que sea un tipo de documento Excel.
+
+  El cumplimiento de estas condiciones deberán cumplirse a través de la invocación de **tres procedimientos almacenados de base de datos**.
+
+  - **Procedimientos Almacenados**
+    - Procedimiento de Cargue: El objetivo de este procedimiento deberá ser el de obtener los datos diligenciados en un archivo de Excel y trasladarlos a la tabla **Trayecto_tmp** sin ningún tipo de alteración y/o modificación de los mismos.
+    - Procedimiento de Validación: El principal propósito de éste es el de identificar los registros del cargue que no cumplen los requerimientos y restricciones definidas para los trayectos que se manejan en la aplicación, teniendo como resultado la caracterización o marcaje de los registros candidatos a ser vinculados a la tabla transaccional de la aplicación (**Trayecto**).
+    - Procedimiento de Procesado: Partiendo del marcaje de los registros candidatos a ser vinculados a la tabla transaccional de la aplicación (**Trayecto**) se procede a ser trasladados dichos registros y marcarlos como procesados.
+- Crear un servicio de consulta de los cargues realizados teniendo como parámetro el identificador de cargue.

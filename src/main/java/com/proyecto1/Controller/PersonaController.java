@@ -20,10 +20,15 @@ import com.proyecto1.DTO.PersonaPorTipoResponse;
 import com.proyecto1.Entities.Persona;
 import com.proyecto1.Services.Interfaces.IPersonaService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/proyecto1/persona")
+@Tag(name = "Persona", description = "Conductores y administrativos; crea un Usuario automáticamente para los administrativos (Fase 2)")
 public class PersonaController {
 
     // ==========INYECCION DEL SERVICE==========
@@ -31,32 +36,40 @@ public class PersonaController {
     @Qualifier("PersonaService")
     private IPersonaService personaService;
 
-    // POST: crea la persona; si es ADMINISTRATIVO devuelve tambien el usuario generado.
+    @Operation(summary = "Crear persona", description = "Crea un conductor o un administrativo. Si es "
+            + "ADMINISTRATIVO, genera automáticamente su Usuario (login, password y apikey). No requiere "
+            + "token: es el único endpoint de escritura abierto, necesario para poder crear el primer "
+            + "administrador del sistema.")
     @PostMapping
     public ResponseEntity<PersonaCreadaResponse> agregarPersona(@RequestBody @Valid Persona persona) {
         return ResponseEntity.status(HttpStatus.CREATED).body(personaService.crear(persona));
     }
 
-    // PUT: actualiza los datos de la persona (el id va en el body).
+    @Operation(summary = "Editar persona", description = "Actualiza los datos de una persona existente "
+            + "(el id va dentro del body). No permite cambiar el tipo de persona.")
+    @SecurityRequirement(name = "bearerAuth")
     @PutMapping
     public ResponseEntity<Persona> editarPersona(@RequestBody @Valid Persona persona) {
         return ResponseEntity.ok(personaService.actualizar(persona));
     }
 
-    // GET por id
+    @Operation(summary = "Consultar persona por id")
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/{id}")
-    public ResponseEntity<Persona> getById(@PathVariable("id") Long id) {
+    public ResponseEntity<Persona> getById(@Parameter(description = "Id de la persona") @PathVariable("id") Long id) {
         return ResponseEntity.ok(personaService.findById(id));
     }
 
-    // GET listado paginado
+    @Operation(summary = "Listar personas", description = "Listado paginado de todas las personas registradas.")
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping
     public ResponseEntity<List<Persona>> listadoPersonas(Pageable pageable) {
         return ResponseEntity.ok(personaService.consultarPersonas(pageable));
     }
 
     // ================ SERVICIO PUBLICO (no requiere token) ================
-    // Total de personas agrupadas por tipo.
+    @Operation(summary = "[Público] Total de personas por tipo", description = "Devuelve el total de "
+            + "personas agrupadas por tipo (Conductor / Administrativo). No requiere autenticación.")
     @GetMapping("/publico/conteo-por-tipo")
     public ResponseEntity<List<PersonaPorTipoResponse>> getConteoPorTipo() {
         return ResponseEntity.ok(personaService.contarPorTipo());

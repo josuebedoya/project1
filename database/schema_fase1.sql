@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS Vehiculo (
     CONSTRAINT CK_VEHICULO CHECK (
         TipoVehiculo IN ('AUTOMOVIL', 'MOTOCICLETA')
         AND TipoServicio IN ('Pu', 'Pr')
-        AND TipoCombustible IN ('GASOLINA', 'GAS', 'DISEL')
+        AND TipoCombustible IN ('GASOLINA', 'GAS', 'DIESEL')
     )
 ) ENGINE = InnoDB;
 
